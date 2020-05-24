@@ -1,21 +1,20 @@
 package com.partha.lrn.demo.service;
 
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+@Service
 public class TimeService {
 
     private static final DateTimeFormatter FORMATTER_24 = DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final DateTimeFormatter FORMATTER_12 = DateTimeFormatter.ofPattern("hh:mm:ss a");
 
-    private final boolean is24;
-
-    public TimeService(boolean is24){
-        this.is24 = is24;
-    }
-
+    @Value("#{new Boolean(environment['spring.profiles.active']!='dev')}")
+    private boolean is24;
 
     public String getCurrentTime(){
         LocalDateTime now = LocalDateTime.now();
