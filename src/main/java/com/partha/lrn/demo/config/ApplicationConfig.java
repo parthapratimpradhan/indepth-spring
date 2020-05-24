@@ -33,6 +33,6 @@ public class ApplicationConfig {
 
     @Bean
     public GreetingService greetingService(){
-        return new GreetingService("Hello");
+        return new GreetingService(greeting);
     }
 }
