@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -21,25 +23,14 @@ public class LoggingAspect {
 	@Pointcut("@annotation(Loggable)")
 	public void executeLogging() {}
 	
-	@Before("executeLogging()")
-	public void logMethodCall(JoinPoint joinPoint){
-        StringBuilder message = new StringBuilder("Method: ");
-        message.append(joinPoint.getSignature().getName());
-        Object[] args = joinPoint.getArgs();
-        if (null!=args && args.length>0){
-            message.append(" args=[ | ");
-            Arrays.asList(args).forEach(arg->{
-                message.append(arg).append(" | ");
-            });
-            message.append("]");
-        }
-        log.info(message.toString());
-    }
-	
-	 @AfterReturning(value = "executeLogging()", returning = "returnValue")
-	    public void logMethodCallAfter(JoinPoint joinPoint, Object returnValue){
+	 @Around(value = "executeLogging()")
+	    public Object logMethodCall(ProceedingJoinPoint joinPoint) throws Throwable {
+	        long startTime = System.currentTimeMillis();
+	        Object returnValue = joinPoint.proceed(); // Any thing before this will be executed before and anything after this will be executed after
+	        long totalTime = System.currentTimeMillis()-startTime;
 	        StringBuilder message = new StringBuilder("Method: ");
 	        message.append(joinPoint.getSignature().getName());
+	        message.append(" totalTime: ").append(totalTime).append("ms");
 	        Object[] args = joinPoint.getArgs();
 	        if (null!=args && args.length>0){
 	            message.append(" args=[ | ");
@@ -55,7 +46,6 @@ public class LoggingAspect {
 	        }
 
 	        log.info(message.toString());
+	        return returnValue;
 	    }
-	
-
 }
